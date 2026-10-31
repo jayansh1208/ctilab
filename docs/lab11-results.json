@@ -1,0 +1,238 @@
+{
+  "mongodb_version": "7.0.45",
+  "documents_per_collection": 10000,
+  "collections": {
+    "hotspot_data": {
+      "shard_key": {
+        "ts": 1
+      },
+      "distribution": [
+        {
+          "shard": "shard1RS",
+          "documents": 10000,
+          "data_size_bytes": 2230000
+        }
+      ],
+      "query": {
+        "ts": {
+          "$gte": "2025-01-01 01:06:40+00:00",
+          "$lt": "2025-01-01 01:40:00+00:00"
+        }
+      },
+      "explain": {
+        "targeted_shards": [
+          "shard1RS"
+        ],
+        "targeted_shard_count": 1,
+        "winning_plan": {
+          "stage": "SINGLE_SHARD",
+          "shards": [
+            {
+              "shardName": "shard1RS",
+              "connectionString": "shard1RS/shard1:27018",
+              "serverInfo": {
+                "host": "74a6b67b44de",
+                "port": 27018,
+                "version": "7.0.45",
+                "gitVersion": "a52313e13ab55c9bddf7c3ff91dab286fa381796"
+              },
+              "namespace": "lab11.hotspot_data",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "$and": [
+                  {
+                    "ts": {
+                      "$lt": "2025-01-01 01:40:00"
+                    }
+                  },
+                  {
+                    "ts": {
+                      "$gte": "2025-01-01 01:06:40"
+                    }
+                  }
+                ]
+              },
+              "queryHash": "961540A5",
+              "planCacheKey": "C8A844E5",
+              "optimizationTimeMillis": 0,
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "FETCH",
+                "inputStage": {
+                  "stage": "SHARDING_FILTER",
+                  "inputStage": {
+                    "stage": "IXSCAN",
+                    "keyPattern": {
+                      "ts": 1
+                    },
+                    "indexName": "ts_1",
+                    "isMultiKey": false,
+                    "multiKeyPaths": {
+                      "ts": []
+                    },
+                    "isUnique": false,
+                    "isSparse": false,
+                    "isPartial": false,
+                    "indexVersion": 2,
+                    "direction": "forward",
+                    "indexBounds": {
+                      "ts": [
+                        "[new Date(1735693600000), new Date(1735695600000))"
+                      ]
+                    }
+                  }
+                }
+              },
+              "rejectedPlans": []
+            }
+          ]
+        }
+      }
+    },
+    "even_data": {
+      "shard_key": {
+        "user_id": "hashed"
+      },
+      "distribution": [
+        {
+          "shard": "shard1RS",
+          "documents": 4996,
+          "data_size_bytes": 1114108
+        },
+        {
+          "shard": "shard2RS",
+          "documents": 5004,
+          "data_size_bytes": 1115892
+        }
+      ],
+      "query": {
+        "user_id": {
+          "$gte": "64739e3f88b2430887530263",
+          "$lt": "97b7c14b10764e09d7daa79b"
+        }
+      },
+      "explain": {
+        "targeted_shards": [
+          "shard1RS",
+          "shard2RS"
+        ],
+        "targeted_shard_count": 2,
+        "winning_plan": {
+          "stage": "SHARD_MERGE",
+          "shards": [
+            {
+              "shardName": "shard1RS",
+              "connectionString": "shard1RS/shard1:27018",
+              "serverInfo": {
+                "host": "74a6b67b44de",
+                "port": 27018,
+                "version": "7.0.45",
+                "gitVersion": "a52313e13ab55c9bddf7c3ff91dab286fa381796"
+              },
+              "namespace": "lab11.even_data",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "$and": [
+                  {
+                    "user_id": {
+                      "$lt": "97b7c14b10764e09d7daa79b"
+                    }
+                  },
+                  {
+                    "user_id": {
+                      "$gte": "64739e3f88b2430887530263"
+                    }
+                  }
+                ]
+              },
+              "queryHash": "4CCF08CF",
+              "planCacheKey": "FD99942D",
+              "optimizationTimeMillis": 0,
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "SHARDING_FILTER",
+                "inputStage": {
+                  "stage": "COLLSCAN",
+                  "filter": {
+                    "$and": [
+                      {
+                        "user_id": {
+                          "$lt": "97b7c14b10764e09d7daa79b"
+                        }
+                      },
+                      {
+                        "user_id": {
+                          "$gte": "64739e3f88b2430887530263"
+                        }
+                      }
+                    ]
+                  },
+                  "direction": "forward"
+                }
+              },
+              "rejectedPlans": []
+            },
+            {
+              "shardName": "shard2RS",
+              "connectionString": "shard2RS/shard2:27018",
+              "serverInfo": {
+                "host": "161ecf130b39",
+                "port": 27018,
+                "version": "7.0.45",
+                "gitVersion": "a52313e13ab55c9bddf7c3ff91dab286fa381796"
+              },
+              "namespace": "lab11.even_data",
+              "indexFilterSet": false,
+              "parsedQuery": {
+                "$and": [
+                  {
+                    "user_id": {
+                      "$lt": "97b7c14b10764e09d7daa79b"
+                    }
+                  },
+                  {
+                    "user_id": {
+                      "$gte": "64739e3f88b2430887530263"
+                    }
+                  }
+                ]
+              },
+              "queryHash": "4CCF08CF",
+              "planCacheKey": "FD99942D",
+              "optimizationTimeMillis": 0,
+              "maxIndexedOrSolutionsReached": false,
+              "maxIndexedAndSolutionsReached": false,
+              "maxScansToExplodeReached": false,
+              "winningPlan": {
+                "stage": "SHARDING_FILTER",
+                "inputStage": {
+                  "stage": "COLLSCAN",
+                  "filter": {
+                    "$and": [
+                      {
+                        "user_id": {
+                          "$lt": "97b7c14b10764e09d7daa79b"
+                        }
+                      },
+                      {
+                        "user_id": {
+                          "$gte": "64739e3f88b2430887530263"
+                        }
+                      }
+                    ]
+                  },
+                  "direction": "forward"
+                }
+              },
+              "rejectedPlans": []
+            }
+          ]
+        }
+      }
+    }
+  }
+}
