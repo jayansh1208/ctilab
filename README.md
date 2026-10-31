@@ -1,6 +1,6 @@
-# Signal / CTI Desk — Lab 7
+# Signal / CTI Desk — Labs 7 and 10
 
-A small Cyber Threat Intelligence research desk that combines the two Lab 7 activities: a MongoDB-inspired production schema with a working search/classification experience, and a WiredTiger working-set sampler with a GitHub report-discovery monitor.
+A small Cyber Threat Intelligence research desk that combines the Lab 7 activities with Lab 10 multi-document MongoDB transaction demonstrations for bank transfers and concurrent inventory reservations.
 
 ## Run it
 
@@ -19,6 +19,10 @@ Vercel can deploy this Flask app as a serverless function. The frontend assets l
 Vercel recognizes Flask apps from `app.py` and serves files in `public/`; `vercel.json` includes the templates, documentation, and seed data used at runtime. See [Vercel's Flask deployment guide](https://vercel.com/docs/frameworks/backend/flask). GitHub Pages alone cannot run this Python API, so use Vercel for the complete app.
 
 In MongoDB mode, the app creates useful indexes and seeds the sample intelligence records only when the collection is empty. Classifications are analyst judgments attached to a report-source pair. See `docs/lab-analysis.md` for the design rationale, BSON sizing pipeline, limitations, and activity answers. `scripts/working_set.py` creates and randomly reads 100,000 approximately 2 KB documents; `scripts/report_monitor.py` checks the annual-report repository for new report entries every ten seconds and prints WiredTiger cache hit ratio when MongoDB is configured.
+
+## Lab 10: transactions
+
+Use Docker Compose to start the Flask app and a MongoDB 7 replica set, then run the transaction examples with `docker compose run --rm app python scripts/lab10_transactions.py all`. Lab 10 instructions and concurrency variants are in `docs/lab10.md`. The published image is [`krish1226/lab10:lab10`](https://hub.docker.com/r/krish1226/lab10), and the submission PDF is `docs/lab10-submission.pdf`.
 
 ## Data provenance
 
