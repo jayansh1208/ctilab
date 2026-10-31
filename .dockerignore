@@ -5,3 +5,5 @@ __pycache__
 *.py[cod]
 output
 tmp
+*.zip
+docs/*-preview.png

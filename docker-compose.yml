@@ -1,6 +1,9 @@
+x-lab-image: &lab-image krish1226/lab10:lab11
+
 services:
+  # Lab 10 replica set, used by the main app and transaction exercises.
   mongo:
-    image: mongo:7
+    image: mongo:7.0
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
@@ -13,15 +16,105 @@ services:
       retries: 30
 
   mongo-init:
-    image: mongo:7
+    image: mongo:7.0
     depends_on:
       mongo:
         condition: service_healthy
     entrypoint: ["mongosh", "mongodb://mongo:27017/admin", "--quiet", "--eval"]
-    command: ["try { rs.status() } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }; while (rs.status().myState !== 1) { sleep(500) }; print('Replica set ready')"]
+    command: ["try { rs.status() } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }; while (rs.status().myState !== 1) { sleep(500) }; print('Lab 10 replica set ready')"]
     restart: "no"
 
+  # Lab 11 config server replica set and two shard replica sets.
+  configsvr:
+    image: mongo:7.0
+    command: ["mongod", "--configsvr", "--replSet", "cfgRS", "--port", "27019", "--bind_ip_all"]
+    volumes:
+      - config-data:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--port", "27019", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  config-init:
+    image: mongo:7.0
+    depends_on:
+      configsvr:
+        condition: service_healthy
+    entrypoint: ["mongosh", "--host", "configsvr", "--port", "27019", "--quiet", "--eval"]
+    command: ["try { rs.status() } catch (e) { rs.initiate({_id:'cfgRS',configsvr:true,members:[{_id:0,host:'configsvr:27019'}]}) }; while (rs.status().myState !== 1) { sleep(500) }; print('Config server ready')"]
+    restart: "no"
+
+  shard1:
+    image: mongo:7.0
+    command: ["mongod", "--shardsvr", "--replSet", "shard1RS", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard1-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--port", "27018", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  shard1-init:
+    image: mongo:7.0
+    depends_on:
+      shard1:
+        condition: service_healthy
+    entrypoint: ["mongosh", "--host", "shard1", "--port", "27018", "--quiet", "--eval"]
+    command: ["try { rs.status() } catch (e) { rs.initiate({_id:'shard1RS',members:[{_id:0,host:'shard1:27018'}]}) }; while (rs.status().myState !== 1) { sleep(500) }; print('Shard 1 ready')"]
+    restart: "no"
+
+  shard2:
+    image: mongo:7.0
+    command: ["mongod", "--shardsvr", "--replSet", "shard2RS", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard2-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--port", "27018", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  shard2-init:
+    image: mongo:7.0
+    depends_on:
+      shard2:
+        condition: service_healthy
+    entrypoint: ["mongosh", "--host", "shard2", "--port", "27018", "--quiet", "--eval"]
+    command: ["try { rs.status() } catch (e) { rs.initiate({_id:'shard2RS',members:[{_id:0,host:'shard2:27018'}]}) }; while (rs.status().myState !== 1) { sleep(500) }; print('Shard 2 ready')"]
+    restart: "no"
+
+  mongos:
+    image: mongo:7.0
+    command: ["mongos", "--configdb", "cfgRS/configsvr:27019", "--bind_ip_all", "--port", "27017"]
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
+      shard1-init:
+        condition: service_completed_successfully
+      shard2-init:
+        condition: service_completed_successfully
+    ports:
+      - "27018:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  router-init:
+    image: mongo:7.0
+    depends_on:
+      mongos:
+        condition: service_healthy
+    entrypoint: ["mongosh", "mongodb://mongos:27017/admin", "--quiet", "--eval"]
+    command: ["try { sh.addShard('shard1RS/shard1:27018') } catch (e) { if (!String(e).includes('already')) throw e }; try { sh.addShard('shard2RS/shard2:27018') } catch (e) { if (!String(e).includes('already')) throw e }; printjson(sh.status().shards)"]
+    restart: "no"
+
+  # Lab 7/10 web app connects to the Lab 10 replica set.
   app:
+    image: *lab-image
     build: .
     depends_on:
       mongo-init:
@@ -34,5 +127,22 @@ services:
       - "5000:5000"
     command: ["python", "app.py"]
 
+  # Run explicitly for the Lab 11 script; it uses mongos, not the Lab 10 RS.
+  lab11:
+    image: *lab-image
+    profiles: ["lab11"]
+    depends_on:
+      router-init:
+        condition: service_completed_successfully
+    environment:
+      MONGODB_URI: mongodb://mongos:27017/?directConnection=true
+      MONGODB_DATABASE: lab11
+    volumes:
+      - ./docs:/app/docs
+    command: ["python", "scripts/lab11_sharding.py"]
+
 volumes:
   mongo-data:
+  config-data:
+  shard1-data:
+  shard2-data:

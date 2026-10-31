@@ -1,6 +1,6 @@
-# Signal / CTI Desk — Labs 7 and 10
+# Signal / CTI Desk — Labs 7-11
 
-A small Cyber Threat Intelligence research desk that combines the Lab 7 activities with Lab 10 multi-document MongoDB transaction demonstrations for bank transfers and concurrent inventory reservations.
+A small Cyber Threat Intelligence research desk that combines the Lab 7 activities with Lab 10 multi-document transactions and Lab 11 sharding demonstrations.
 
 ## Run it
 
@@ -22,7 +22,11 @@ In MongoDB mode, the app creates useful indexes and seeds the sample intelligenc
 
 ## Lab 10: transactions
 
-Use Docker Compose to start the Flask app and a MongoDB 7 replica set, then run the transaction examples with `docker compose run --rm app python scripts/lab10_transactions.py all`. Lab 10 instructions and concurrency variants are in `docs/lab10.md`. The published image is [`krish1226/lab10:lab10`](https://hub.docker.com/r/krish1226/lab10), and the submission PDF is `docs/lab10-submission.pdf`.
+Use the unified Docker Compose file to start the app, the Lab 10 replica set, and the Lab 11 sharded cluster: `docker compose up --build -d`. Run the transactions with `docker compose run --rm app python scripts/lab10_transactions.py all`. Lab 10 instructions and concurrency variants are in `docs/lab10.md`.
+
+## Lab 11: sharding
+
+Run the Lab 11 analysis on the same Compose cluster with `docker compose --profile lab11 run --rm lab11`. See `docs/lab11.md` for the key-selection matrix, resharding notes, and observed results. The combined project image is published at [`krish1226/lab10:lab11`](https://hub.docker.com/r/krish1226/lab10). The combined submission sheet is `docs/labs-7-11-submission.pdf`.
 
 ## Data provenance
 
