@@ -1,4 +1,4 @@
-x-lab-image: &lab-image krish1226/lab10:lab11
+x-lab-image: &lab-image krish1226/lab10:lab12
 
 services:
   # Lab 10 replica set, used by the main app and transaction exercises.
@@ -141,8 +141,65 @@ services:
       - ./docs:/app/docs
     command: ["python", "scripts/lab11_sharding.py"]
 
+  # Lab 12 standalone service for SCRAM/RBAC and TLS exercises.
+  lab12-certs:
+    image: mongo:7.0
+    profiles: ["lab12"]
+    entrypoint: ["/bin/bash", "/scripts/generate_lab12_certs.sh"]
+    volumes:
+      - ./scripts:/scripts:ro
+      - lab12-ca:/ca
+      - lab12-server-certs:/server
+      - lab12-client-certs:/client
+    restart: "no"
+
+  secure-mongo:
+    image: mongo:7.0
+    profiles: ["lab12"]
+    depends_on:
+      lab12-certs:
+        condition: service_completed_successfully
+    entrypoint: ["/bin/bash", "/scripts/secure_mongo_entrypoint.sh"]
+    environment:
+      LAB12_ADMIN_USERNAME: ${LAB12_ADMIN_USERNAME:-labadmin}
+      LAB12_ADMIN_PASSWORD: ${LAB12_ADMIN_PASSWORD:-}
+    volumes:
+      - ./scripts:/scripts:ro
+      - lab12-server-certs:/security:ro
+      - lab12-mongo-data:/data/db
+    ports:
+      - "27019:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "mongodb://127.0.0.1:27017/?directConnection=true", "--tls", "--tlsCAFile", "/security/ca.crt", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 4s
+      timeout: 4s
+      retries: 30
+
+  lab12:
+    image: *lab-image
+    profiles: ["lab12"]
+    depends_on:
+      secure-mongo:
+        condition: service_healthy
+    environment:
+      LAB12_ADMIN_USERNAME: ${LAB12_ADMIN_USERNAME:-labadmin}
+      LAB12_ADMIN_PASSWORD: ${LAB12_ADMIN_PASSWORD:-}
+      LAB12_READ_PASSWORD: ${LAB12_READ_PASSWORD:-}
+      LAB12_WRITE_PASSWORD: ${LAB12_WRITE_PASSWORD:-}
+      LAB12_HR_PASSWORD: ${LAB12_HR_PASSWORD:-}
+      LAB12_TLS_CA_FILE: /security/ca.crt
+      LAB12_TLS_CLIENT_FILE: /security/client.pem
+    volumes:
+      - ./docs:/app/docs
+      - lab12-client-certs:/security:ro
+    command: ["python", "scripts/lab12_security.py"]
+
 volumes:
   mongo-data:
   config-data:
   shard1-data:
   shard2-data:
+  lab12-ca:
+  lab12-server-certs:
+  lab12-client-certs:
+  lab12-mongo-data:

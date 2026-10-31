@@ -1,6 +1,6 @@
-# Signal / CTI Desk — Labs 7-11
+# Signal / CTI Desk — Labs 7-12
 
-A small Cyber Threat Intelligence research desk that combines the Lab 7 activities with Lab 10 multi-document transactions and Lab 11 sharding demonstrations.
+A small Cyber Threat Intelligence research desk that combines the Lab 7 activities with Lab 10 transactions, Lab 11 sharding, and Lab 12 authentication/RBAC/TLS demonstrations.
 
 ## Run it
 
@@ -26,7 +26,11 @@ Use the unified Docker Compose file to start the app, the Lab 10 replica set, an
 
 ## Lab 11: sharding
 
-Run the Lab 11 analysis on the same Compose cluster with `docker compose --profile lab11 run --rm lab11`. See `docs/lab11.md` for the key-selection matrix, resharding notes, and observed results. The combined project image is published at [`krish1226/lab10:lab11`](https://hub.docker.com/r/krish1226/lab10). The combined submission sheet is `docs/labs-7-11-submission.pdf`.
+Run the Lab 11 analysis on the same Compose cluster with `docker compose --profile lab11 run --rm lab11`. See `docs/lab11.md` for the key-selection matrix, resharding notes, and observed results. The combined project image is published at [`krish1226/lab10:lab12`](https://hub.docker.com/r/krish1226/lab10). The all-labs submission sheet is `docs/labs-7-12-submission.pdf`.
+
+## Lab 12: security
+
+Lab 12 is included in the same Compose file and uses an isolated TLS-required MongoDB service. Set the Lab 12 passwords in your ignored `.env` file, then run `docker compose --profile lab12 run --rm lab12`. The runner checks TLS rejection for plaintext, least-privilege roles, and salary redaction through a view. See `docs/lab12.md` for setup and results. The complete image tag is [`krish1226/lab10:lab12`](https://hub.docker.com/r/krish1226/lab10), and the combined PDF is `docs/labs-7-12-submission.pdf`.
 
 ## Data provenance
 
