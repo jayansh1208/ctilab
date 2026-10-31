@@ -81,4 +81,4 @@ Important limitations and planning points: reshard one collection at a time; the
 
 ## Docker Hub submission
 
-The image containing Labs 7, 10, and 11 is published at [krish1226/lab10](https://hub.docker.com/r/krish1226/lab10), tag `lab11`. Pull it with `docker pull krish1226/lab10:lab11`. The submission PDF is `docs/lab11-submission.pdf`.
+The current all-labs image is published at [krish1226/lab10](https://hub.docker.com/r/krish1226/lab10), tag `lab12`. Pull it with `docker pull krish1226/lab10:lab12`. The combined submission PDF is `docs/labs-7-12-submission.pdf`.

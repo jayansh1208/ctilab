@@ -1,0 +1,17 @@
+{
+  "tls": "required; server CA verified; PyMongo presents client certificate",
+  "plaintext_connection": "rejected",
+  "rbac": {
+    "reader": "find and aggregate on orders; find on employee_public view",
+    "writer": "find/insert/update/remove on orders only",
+    "hr_user": "find on employees, including salary",
+    "reader_aggregate_status_groups": 2,
+    "public_employee_fields": [
+      "department",
+      "employee_id",
+      "name"
+    ],
+    "salary_hidden_from_reader": true,
+    "salary_visible_to_hr": 120000
+  }
+}
